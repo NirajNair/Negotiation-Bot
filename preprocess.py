@@ -14,6 +14,7 @@ import pandas as pd
 
 stop_words = stopwords.words('english')
 dataset = load_dataset('craigslist_bargains', split= 'train')
+test_dataset = load_dataset('craigslist_bargains', split= 'validation')
 
 # -----------------------------------------------------------------------
 # create_df :
@@ -43,6 +44,7 @@ def create_df(dataset):
     df = pd.DataFrame(data)
     return df
 
+test_df = create_df(test_dataset)
 df = create_df(dataset)
 
 # Remove all punctuations
@@ -61,16 +63,22 @@ def remove_number(text):
 # it with string "NUMBER", tokenizes the text and then removes stop words.
 # -----------------------------------------------------------------------
 def text_preprocess(text):
-    text = text.lower()
     text = remove_all_punct(text)
     text = remove_number(text)
+    text = text.lower()
+    return text
+
+def text_tokenize(text):
     text = word_tokenize(text)
     text = [word for word in text if word not in stop_words]
     return text
-    
 df['preprocessed_text'] = df["text"].apply(lambda x : text_preprocess(x))
+test_df['preprocessed_text'] = test_df["text"].apply(lambda x : text_preprocess(x))
+df['tokens'] = df['preprocessed_text'].apply(lambda x : text_tokenize(x))
+test_df['tokens'] = test_df['preprocessed_text'].apply(lambda x : text_tokenize(x))
 
-intent_freq = pd.value_counts(df.intent).to_dict()
+train_intent_freq = pd.value_counts(df.intent).to_dict()
+# test_intent_freq = pd.value_counts(test_df.intent).to_dict()
 
 
 # -----------------------------------------------------------------------
@@ -80,15 +88,21 @@ intent_freq = pd.value_counts(df.intent).to_dict()
 # variable, it helps the model to understand and assign the weight in 
 # direct and inverse proportion, depending on the nature of the data.
 # -----------------------------------------------------------------------
-def frequency_encoding(column):
+def frequency_encoding(column, intent_freq):
     for i in range(len(column)):
         column[i] = intent_freq[column[i]]
     return column
 
-encoded_intent_col = frequency_encoding(df.intent.tolist())
+train_encoded_intent_col = frequency_encoding(df.intent.tolist(),
+                                              train_intent_freq)
+test_encoded_intent_col = frequency_encoding(test_df.intent.tolist(),
+                                             train_intent_freq)
 
-df['encoded_intent'] = encoded_intent_col
+df['encoded_intent'] = train_encoded_intent_col
+test_df['encoded_intent'] = test_encoded_intent_col
 
 # Creates a csv of dataframe
-df.to_csv('preprocessed_data.csv', index=False)
+df.to_csv('train_data.csv', index=False)
+test_df.to_csv('test_data.csv', index=False)
+
     
