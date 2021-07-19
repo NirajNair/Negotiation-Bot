@@ -75,7 +75,7 @@ def text_tokenize(text):
 df['preprocessed_text'] = df["text"].apply(lambda x : text_preprocess(x))
 test_df['preprocessed_text'] = test_df["text"].apply(lambda x : text_preprocess(x))
 df['tokens'] = df['preprocessed_text'].apply(lambda x : text_tokenize(x))
-df['tokens'] = test_df['preprocessed_text'].apply(lambda x : text_tokenize(x))
+test_df['tokens'] = test_df['preprocessed_text'].apply(lambda x : text_tokenize(x))
 
 train_intent_freq = pd.value_counts(df.intent).to_dict()
 # test_intent_freq = pd.value_counts(test_df.intent).to_dict()
