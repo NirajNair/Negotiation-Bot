@@ -7,9 +7,11 @@ Created on Sun Jul 18 20:55:30 2021
 import re
 import string
 from nltk import word_tokenize
+from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
 from datasets import load_dataset
 import numpy as np
+from numpy.core.numeric import array_equal
 import pandas as pd
 
 stop_words = stopwords.words('english')
@@ -63,23 +65,42 @@ def remove_number(text):
 # it with string "NUMBER", tokenizes the text and then removes stop words.
 # -----------------------------------------------------------------------
 def text_preprocess(text):
+    # porter = PorterStemmer()
     text = remove_all_punct(text)
     text = remove_number(text)
     text = text.lower()
+    # text = porter.stem(text)
+    return text
+
+def text_stemmer(text):
+    stemmer = PorterStemmer()
+    text = ' '.join(stemmer.stem(token) for token in word_tokenize(text))
     return text
 
 def text_tokenize(text):
     text = word_tokenize(text)
     text = [word for word in text if word not in stop_words]
     return text
+
+def text_tokenize_with_stopwords(text):
+    text = word_tokenize(text)
+    text = [word for word in text]
+    return text
+
 df['preprocessed_text'] = df["text"].apply(lambda x : text_preprocess(x))
-test_df['preprocessed_text'] = test_df["text"].apply(lambda x : text_preprocess(x))
+test_df['preprocessed_text'] = test_df["text"].apply(lambda x : text_preprocess(x)
+                                                     )
+df['stemmed_text'] = df["preprocessed_text"].apply(lambda x : text_stemmer(x))
+test_df['stemmed_text'] = test_df["preprocessed_text"].apply(lambda x : text_stemmer(x))
+
 df['tokens'] = df['preprocessed_text'].apply(lambda x : text_tokenize(x))
 test_df['tokens'] = test_df['preprocessed_text'].apply(lambda x : text_tokenize(x))
 
-train_intent_freq = pd.value_counts(df.intent).to_dict()
-# test_intent_freq = pd.value_counts(test_df.intent).to_dict()
+df['tokens_with_sw'] = df['preprocessed_text'].apply(lambda x : text_tokenize_with_stopwords(x))
+test_df['tokens_with_sw'] = test_df['preprocessed_text'].apply(lambda x : text_tokenize_with_stopwords(x))
 
+
+train_intent_freq = pd.value_counts(df.intent).to_dict()
 
 # -----------------------------------------------------------------------
 # Frequency encoding
@@ -93,10 +114,11 @@ def frequency_encoding(column, intent_freq):
         column[i] = intent_freq[column[i]]
     return column
 
+    
 train_encoded_intent_col = frequency_encoding(df.intent.tolist(),
                                               train_intent_freq)
 test_encoded_intent_col = frequency_encoding(test_df.intent.tolist(),
-                                             train_intent_freq)
+                                              train_intent_freq)
 
 df['encoded_intent'] = train_encoded_intent_col
 test_df['encoded_intent'] = test_encoded_intent_col
