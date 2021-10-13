@@ -75,8 +75,6 @@ intent_map = { 4051:'init-price',
 #             }
 
 # Model training and saving
-
-
 def load_model_and_vectorizer():
     if os.path.exists(MODEL_FILENAME):
         model = jb.load(MODEL_FILENAME)
