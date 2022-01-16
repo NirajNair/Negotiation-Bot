@@ -24,19 +24,20 @@ def load_model():
     return classifier
 
 #encoding intent labels to integer values
-def encoding_intents(buyers_intents):
+def encoding_intents(buyer_intents):
     encodedIntents = []
-    for x in buyers_intents:
-        if x in intent_map:
-            encodedIntents.append(intent_map[x])
-        else:
+    for x in range(13):
+        try:
+            encodedIntents.append(intent_map[buyer_intents[x]])
+        except:
             encodedIntents.append(0)
     return encodedIntents
 
 #predicting maximun discount percentage for counter-pricing
-def max_discount_predict(buyers_intents, ):
+def max_discount_predict(buyer_intents):
     classifier = load_model()
-    encodedIntents = encoding_intents(buyers_intents)
-    discount = classifier.predict(encodedIntents)
+    encodedIntents = encoding_intents(buyer_intents)
+    print(encodedIntents)
+    discount = classifier.predict([encodedIntents])
     var_discount = random.randrange(-4,4) if discount > 5 else random.randrange(1,5)
     return discount + var_discount
