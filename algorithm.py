@@ -1,6 +1,6 @@
 import re
-import ic_model 
-import pp_model
+from intentClassification import ic_model 
+from pricePrediction import pp_model
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -131,14 +131,26 @@ def decisionEngine(text):
     #e.g.(100,200), (100,0)
     try: 
         buyer_bid = priceExtraction(text)
-        upperLimit, lowerLimit = getPriceLimit()
-        buyer_all_bids = getBuyerBids()
-        last_bid = buyer_all_bids[-1]
-        second_last_bid = buyer_all_bids[-2]
-        if all(x < lowerLimit for x in [second_last_bid ,last_bid, buyer_bid]):
-            return eval("Intentdisagree" + "({})".format(0))
+        # upperLimit, lowerLimit = getPriceLimit()
+        # buyer_all_bids = getBuyerBids()
+        # last_bid = buyer_all_bids[-1]
+        # second_last_bid = buyer_all_bids[-2]
+        # if all(x < lowerLimit for x in [second_last_bid ,last_bid, buyer_bid]):
+        #     return eval("Intentdisagree" + "({})".format(0))
     except:
         buyer_bid = 0
+
+    # try:
+    #     upperLimit, lowerLimit = getPriceLimit()
+    #     buyer_all_bids = getBuyerBids()
+    #     last_bid = buyer_all_bids[-1]
+    #     second_last_bid = buyer_all_bids[-2]
+    #     if all(x < lowerLimit for x in [second_last_bid ,last_bid, buyer_bid]):
+    #         return eval("Intentdisagree" + "({})".format(0))
+    # except:
+
+
+    
     # print(buyer_bid)
     #calling distint functions according to the buyer_intent
     return eval("Intent" + str(buyer_intent) + "({})".format(buyer_bid))
