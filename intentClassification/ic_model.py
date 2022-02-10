@@ -75,10 +75,9 @@ intent_map = { 4051:'init-price',
 
 # Model training and saving
 def load_model_and_vectorizer():
-    # if os.path.exists(MODEL_FILENAME):
-    model = jb.load(MODEL_FILENAME)
-    vect = jb.load(VECT_FILENAME)
-    print('dsjvinjud')
+    if os.path.exists(MODEL_FILENAME):
+        model = jb.load(MODEL_FILENAME)
+        vect = jb.load(VECT_FILENAME)
     return model, vect
 
 def predict_intent(text):
@@ -87,8 +86,7 @@ def predict_intent(text):
     vectorized_text = vect.transform([preprocessed_text])
     # predicting the intent
     intent = ic_model.predict(vectorized_text)
-    print(intent)
-    print(intent_map[intent[0]])
+    print("current intent: ", intent_map[intent[0]])
     return intent_map[intent[0]]
 
 if __name__ == "__main__":
