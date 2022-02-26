@@ -132,7 +132,11 @@ def Intentvague(buyer_bid):
         print("log: Continous vague pricing, switching to Intent-disagree for response")
         return Intentdisagree
 
+<<<<<<< HEAD
     saveIntentIntoBuyerTimeline(['vague-price',buyer_bid])
+=======
+    saveIntentIntoBuyerTimeline(['vague',buyer_bid])
+>>>>>>> 3753c9ebeb3a2fa284db43ea81cca68a0f6ff1e0
     return 'vague', None
 
 def Intentinsist(buyer_bid):

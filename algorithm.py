@@ -1,6 +1,5 @@
 import re
 import random
-from torch import rand
 from intentClassification import ic_model 
 from pricePrediction import pp_model
 import pandas as pd
@@ -14,10 +13,11 @@ test_ds = pd.DataFrame(test_ds)
 test_ds.rename(columns={'utterance':'bargain_convo','dialogue_acts':'intent'}, inplace=True)
 test_ds = test_ds.loc[6,:]
 
+#change1
 def priceExtraction(value):
     try:
         price = re.findall('\$\d+', value)
-        return int(price)
+        return int(price[0][1:])
     except:
         return 0
 
@@ -25,11 +25,10 @@ def getPriceLimit():
     price_limit = np.load('price_limit.npy')
     return price_limit[0], price_limit[1]
 
-def getBuyerBids():
+def getBuyerOffers():
     buyer_timeline = np.load('buyer_timeline.npy')
-    buyer_bids = [x[1] for x in buyer_timeline if x[1] != 0]
-    buyer_bids = buyer_bids[1:]
-    return buyer_bids
+    buyer_Offers = [int(x[1]) for x in buyer_timeline[1:] if x[1] != '0']
+    return buyer_Offers
 
 def getBuyerIntents():
     buyer_timeline = np.load('buyer_timeline.npy')
@@ -37,11 +36,10 @@ def getBuyerIntents():
     buyer_intents = buyer_intents[1:]
     return buyer_intents
 
-def getBotBids():
+def getBotOffers():
     bot_timeline = np.load('bot_timeline.npy')
-    bot_bids = [x[1] for x in bot_timeline if x[1] != 0]
-    bot_bids = bot_bids[1:]
-    return bot_bids
+    bot_Offers = [int(x[1]) for x in bot_timeline[1:] if x[1] != '0']
+    return bot_Offers
 
 def getBotIntents():
     bot_timeline = np.load('bot_timeline.npy')
@@ -50,7 +48,7 @@ def getBotIntents():
     return bot_intents
 
 def saveIntentIntoBuyerTimeline(data):
-    #saving current buyer's and bot's intent and bids in file intent_timeline.npy
+    #saving current buyer's and bot's intent and Offers in file intent_timeline.npy
     buyer_timeline = np.load('buyer_timeline.npy')
     new_timeline = np.append(buyer_timeline, [data], axis=0)
     np.save('buyer_timeline.npy', new_timeline)
@@ -58,107 +56,136 @@ def saveIntentIntoBuyerTimeline(data):
     print(new_timeline)
 
 def saveIntentIntoBotTimeline(data):
-    #saving current buyer's and bot's intent and bids in file intent_timeline.npy
+    #saving current buyer's and bot's intent and Offers in file intent_timeline.npy
     bot_timeline = np.load('bot_timeline.npy')
     new_timeline = np.append(bot_timeline, [data], axis=0)
     np.save('bot_timeline.npy', new_timeline)
     print('bot_timeline:')
     print(new_timeline)
 
-def discountedAmount(buyer_bid):
+def discountedAmount(buyer_offer):
     discount = pp_model.max_discount_predict(getBuyerIntents())
     upperLimit, lowerLimit = getPriceLimit()
-    bot_bid = (100 - discount[0]) * 0.01 * upperLimit
-    if bot_bid == buyer_bid: 
-        return int(buyer_bid)
-    print("price prediction:", bot_bid)
-    bot_bid = bot_bid if bot_bid > buyer_bid else buyer_bid
-    bot_bid = bot_bid if bot_bid > lowerLimit else (upperLimit + lowerLimit)//1.95
-    bot_all_bids = getBotBids()
-    if len(bot_all_bids) > 0:
-        last_bid = int(bot_all_bids[-1])
-        bot_bid = bot_bid if bot_bid < last_bid else (last_bid + lowerLimit)//1.95
-    saveIntentIntoBotTimeline(['counter-price',int(bot_bid)])
-    print("price approximation:", bot_bid)
-    return int(bot_bid)
+    all_bot_Offers = getBotOffers()
+    bot_offer = (100 - discount[0]) * 0.01 * upperLimit
+    print("price prediction:", bot_offer)
+    
+    # Error Margin: If buyer's offer differ only within mentioned percentage margin, the Agree
+    if ((bot_offer - buyer_offer)/upperLimit)*100 <= 3:
+        print("case1")
+        bot_offer = buyer_offer
+        
+    # If bot's current offer is equal to or lower than buyer's offer, then Agree
+    if bot_offer <= buyer_offer:
+        print("case2")
+        bot_offer = buyer_offer
 
-def Intentagree(buyer_bid):
-    #once the deal is done, reset previous intents of ongoing conversation
-    if buyer_bid == 0:
-        all_bot_bids = getBotBids()
-        if len(all_bot_bids) == 0:
+    # If bot's current offer is lower than lowerLimit, then offer a Middle Price
+    if bot_offer <= lowerLimit: 
+        print("case3")
+        last_bot_offer = all_bot_Offers[-1] if len(all_bot_Offers) > 0 else upperLimit
+        bot_offer = (last_bot_offer + buyer_offer)//1.95
+    # bot_offer = bot_offer if bot_offer > lowerLimit else (upperLimit + buyer_offer)//2.02
+    # bot_offer = bot_offer if bot_offer > lowerLimit else (upperLimit + lowerLimit)//1.95
+    
+    # If bot's current offer is greater than his last offer, then Insist
+    if len(all_bot_Offers) > 0 and bot_offer > all_bot_Offers[-1]:
+        print("case4")
+        last_bot_offer = all_bot_Offers[-1]
+        bot_offer = bot_offer if bot_offer < last_bot_offer else last_bot_offer
+    
+    print(bot_offer, buyer_offer)
+    print("price after approximation:", bot_offer)
+    return int(bot_offer)
+
+def Intentagree(buyer_offer):
+    # If the deal amount isn't present in user's input, then fetch last bot's offer
+    if buyer_offer == 0:
+        all_bot_Offers = getBotOffers()
+        # If the deal is done without negotiation, then fetch the upperLimit or MRP Price
+        if len(all_bot_Offers) == 0:
             upperLimit, lowerLimit = getPriceLimit()
-            buyer_bid = upperLimit   
+            buyer_offer = upperLimit   
         else:
-            buyer_bid = all_bot_bids[-1]
-    saveIntentIntoBuyerTimeline(['agree',buyer_bid])
-    return 'agree', buyer_bid
+            buyer_offer = int(all_bot_Offers[-1])
 
-def Intentintro(buyer_bid):
-    saveIntentIntoBuyerTimeline(['intro',buyer_bid])
+    saveIntentIntoBotTimeline(['agree',buyer_offer])
+    return 'agree', buyer_offer
+
+def Intentintro(buyer_offer):
+    saveIntentIntoBotTimeline(['intro',buyer_offer])
     return 'intro', None
 
-def Intentinquiry(buyer_bid):
-    saveIntentIntoBuyerTimeline(['inquiry',buyer_bid])
+def Intentinquiry(buyer_offer):
+    saveIntentIntoBotTimeline(['inquiry',buyer_offer])
     return 'inquiry', None
 
-def Intentinitprice(buyer_bid):
-    buyer_intents = getBuyerIntents()
-    count = 0
-    for x in buyer_intents: 
-        if x in ['counter-price','init-price']: 
-            count+=1
-    if count > 4:
-        print("log: Vague counter-pricing. Switching to Intent-disagree for response")
-        return 'disagree', None
+def Intentvague(buyer_offer):
 
-    bot_bid = discountedAmount(buyer_bid)
-    if bot_bid == buyer_bid or ((bot_bid - buyer_bid)/bot_bid)*100 < 1.2:
-        print("log: Equal bids. Switching to Intent-agree for response")
-        return Intentagree(buyer_bid)
-    # if bot_bid == buyer_bid:
-    #     return eval("Intentagree" + "({})".format(buyer_bid))
-    # if bot_bid < buyer_bid:
-    #     return eval("Intentagree" + "({})".format(buyer_bid))
-    saveIntentIntoBuyerTimeline(['init-price',buyer_bid])
-    return 'init-price', bot_bid
+    #If buyer offers 2 continous vague price, then Disagree
+    all_buyer_intents = getBuyerIntents() 
+    if all_buyer_intents[-2:].count('vague') == 2:
+        print("log: Continous vague pricing, switching to Intent-disagree for response")
+        return Intentdisagree
 
-def Intentcounterprice(buyer_bid):
-    buyer_intents = getBuyerIntents()
-    count = 0
-    for x in buyer_intents: 
-        if x in ['counter-price','init-price']: 
-            count+=1
-    if count > 4:
-        print("log: Vague counter-pricing. Switching to Intent-disagree for response")
-        return 'disagree', None
-    bot_bid = discountedAmount(int(buyer_bid))
-    if bot_bid == buyer_bid or ((bot_bid - buyer_bid)/bot_bid)*100 < 1.2:
-        print("log: Equal bids. Switching to Intent-agree for response")
-        return Intentagree(buyer_bid)
-    # if bot_bid == buyer_bid:
-    #     return eval("Intentagree" + "({})".format(buyer_bid))
-    # if bot_bid < buyer_bid:
-    #     return eval("Intentagree" + "({})".format(buyer_bid))
-    saveIntentIntoBuyerTimeline(['counter-price',buyer_bid])
-    return 'counter-price', bot_bid
+    saveIntentIntoBotTimeline(['vague', 0])
+    return 'vague', None
 
-def Intentdisagree(buyer_bid):
-    buyer_intents = getBuyerIntents() 
-    count = 0
-    for x in buyer_intents: 
-        if x in ['counter-price','init-price']: count+=1
-    saveIntentIntoBuyerTimeline(['disagree',buyer_bid])
-    # if count > random.randrange(4,6):
-    if count > 1:
-        return 'disagree', None
-    else:
-        last_buyer_bid = getBuyerBids()
-        buyer_bid = buyer_bid if buyer_bid > 0 else last_buyer_bid[-1]
-        return Intentcounterprice(int(buyer_bid))
+def Intentinsist(buyer_offer):
+    all_bot_offers = getBotOffers()
+    saveIntentIntoBotTimeline(['insist', all_bot_offers[-1]])
+    return 'insist', all_bot_offers[-1]
 
-def Intentunknown(buyer_bid):
-    saveIntentIntoBuyerTimeline(['unknown',buyer_bid])
+def Intentinitprice(buyer_offer):
+    upperLimit, lowerLimit = getPriceLimit()
+
+    # If buyer insists on same offer more than 2 times, then Disagree
+    all_buyer_Offers = getBuyerOffers()
+    if all_buyer_Offers[-3:].count(buyer_offer) >= 3:
+        print("log: Insisting on same offer x 3, switching to Intent-disagree for response")
+        return Intentdisagree(buyer_offer)
+
+    # If bot's offer is equal to buyer's offer, then Agree
+    bot_offer = discountedAmount(buyer_offer)
+    if bot_offer == buyer_offer:
+        print("log: Equal Offers. Switching to Intent-agree for response")
+        return Intentagree(buyer_offer)
+
+    saveIntentIntoBotTimeline(['counterprice',bot_offer])
+    return 'counterprice', bot_offer
+
+def Intentcounterprice(buyer_offer):
+    upperLimit, lowerLimit = getPriceLimit()
+    all_buyer_Offers = getBuyerOffers()
+    # if len(all_buyer_Offers) == 0: 
+    #     return 
+
+    # If buyer insists on same offer more than 2 times, then Disagree
+    all_buyer_Offers = getBuyerOffers()
+    if all_buyer_Offers[-3:].count(buyer_offer) >= 3:
+        print("log: Insisting on same offer x 3, switching to Intent-disagree for response")
+        return Intentdisagree(buyer_offer)
+
+    # If bot's offer is equal to buyer's offer, then Agree
+    bot_offer = discountedAmount(buyer_offer)
+    if bot_offer == buyer_offer :
+        print("log: Equal Offers. Switching to Intent-agree for response")
+        return Intentagree(buyer_offer)
+
+    saveIntentIntoBotTimeline(['counterprice',bot_offer])
+    return 'counterprice', bot_offer
+
+def Intentdisagree(buyer_offer):
+    all_buyer_intents = getBuyerIntents()
+
+    if all_buyer_intents.count('disagree') == 1:
+        return Intentcounterprice(buyer_offer)
+
+    saveIntentIntoBotTimeline(['disagree', 0])
+    return 'disagree', None
+
+def Intentunknown(buyer_offer):
+    saveIntentIntoBotTimeline(['unknown', 0])
     return 'unknown', None
     
 def decisionEngine(text):
@@ -167,20 +194,44 @@ def decisionEngine(text):
     buyer_intent = 'counterprice' if buyer_intent == 'counter-price' else buyer_intent
     buyer_intent = 'initprice' if buyer_intent == 'init-price' else buyer_intent
 
-    #fetching discret price-range or buyers-bid from the user-input text i.e (rangeMin,rangeMax) or (singleValue,0) 
-    #e.g.(100,200), (100,0)
+    #fetching discret price or buyer's offer from input text 
+    buyer_offer = priceExtraction(text)
+    print("current buyer offer:", buyer_offer)
+
+    all_buyer_Offers = getBuyerOffers()
+    all_bot_Offers = getBotOffers()
+    all_buyer_intents = getBuyerIntents()
+    upperLimit, lowerLimit = getPriceLimit()
+
+    # if buyer_offer >= last_bot_offer:
+    #     return 
+
+    if all_buyer_intents[-2:].count('insist') == 2 and buyer_intent != 'agree':
+        print("log: User keeps on insisting, switching to Intent-disagree for response")
+        return Intentdisagree(buyer_offer)
+
+    # If buyer's
+    if buyer_offer != 0 and all_buyer_Offers[-2:].count(str(buyer_offer)) >= 1 : 
+        print("log: Same offer twice, switching to Intent-insist for response")
+        return Intentinsist(buyer_offer)
+
+    # If buyer's offer is too low as compared to lowerLimit, then Vague Price
+    if buyer_offer != 0 and buyer_offer + (upperLimit * 0.09) < lowerLimit:
+        print("log: Vague pricing by user, switching to Intent-vague for response")
+        return Intentvague(buyer_offer)
+
+    # If user starts offering from first text, the bot firstly will reply with Intro instead of counterpricing
+    # if len(all_buyer_intents) == 0 and (buyer_intent == 'counterprice' or buyer_intent == 'initprice'):
+    #     return Intentintro(buyer_offer)
+
+    # if len(all_bot_Offers) != 0 and int(all_bot_Offers[-1]) != 0 and all_bot_Offers[-2:].count(all_bot_Offers[-1]) == 2:
+    #     print("log: Bot offered final price twice, switching to Intent-disagree for response")
+    #     return Intentdisagree(buyer_offer)
+
+    if len(all_bot_Offers) != 0 and all_bot_Offers[-1] != 0 and all_bot_Offers[-2:].count(all_bot_Offers[-1]) == 2:
+        print("log: Bot offered final price twice, switching to Intent-disagree for response")
+        return Intentdisagree(buyer_offer)
     
-    buyer_bid = priceExtraction(text)
-
-    all_buyer_bids = getBuyerBids()
-    if all_buyer_bids.count(buyer_bid) >= 2: return Intentdisagree(buyer_bid)
-        # upperLimit, lowerLimit = getPriceLimit()
-        # buyer_all_bids = getBuyerBids()
-        # last_bid = buyer_all_bids[-1]
-        # second_last_bid = buyer_all_bids[-2]
-        # if all(x < lowerLimit for x in [second_last_bid ,last_bid, buyer_bid]):
-        #     return eval("Intentdisagree" + "({})".format(0))
-
-    # print(buyer_bid)
+    saveIntentIntoBuyerTimeline([buyer_intent,buyer_offer])
     #calling distint functions according to the buyer_intent
-    return eval("Intent" + str(buyer_intent) + "({})".format(buyer_bid))
+    return eval("Intent" + str(buyer_intent) + "({})".format(buyer_offer))
