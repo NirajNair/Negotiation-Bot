@@ -76,10 +76,10 @@ def discountedAmount(buyer_offer):
     # Error Margin: If buyer's offer differ only within mentioned percentage margin, the Agree
     if (abs(bot_offer - buyer_offer)/upperLimit)*100 <= 3:
         print("case1")
-        return int(buyer_offer)
+        bot_offer = buyer_offer
         
     # If bot's current offer is equal to or lower than buyer's offer, then Agree
-    if bot_offer <= buyer_offer:
+    if bot_offer < buyer_offer:
         print("case2")
         bot_offer = buyer_offer
 

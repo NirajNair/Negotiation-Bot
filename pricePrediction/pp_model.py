@@ -2,7 +2,7 @@ import pickle
 import numpy as np
 import random 
 
-MODEL_FILENAME = 'pp_model.pkl'
+MODEL_FILENAME = 'pp_model_raw.pkl'
 
 #encoded integer label for intents
 intent_map = { np.NaN : 0,
@@ -38,5 +38,6 @@ def max_discount_predict(buyer_intents):
     encodedIntents = encoding_intents(buyer_intents)
     print(encodedIntents)
     discount = classifier.predict([encodedIntents])
-    var_discount = random.randrange(-4,2) if discount > 5 else random.randrange(1,4)
+    var_discount = random.randrange(-4,2) if discount > 5 else random.randrange(0,0)
     return discount + var_discount
+    # return discount

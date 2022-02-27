@@ -1,2 +1,4 @@
 Case 1:
-    If 
+    If pp_model 0.3675774134790528 acc with 5 x multiples
+    If pp_model_raw 0.2677595628415301 acc with insist vague raw model ( good : starts from 0% discount )
+    If pp_model_5x 0.41129326047358833 acc with insist vague 5 x multiples ( bad : gives 15% initailly without any input intents)s
