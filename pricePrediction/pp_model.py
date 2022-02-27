@@ -5,18 +5,16 @@ import random
 MODEL_FILENAME = 'pp_model.pkl'
 
 #encoded integer label for intents
-intent_map = { np.NaN:          0,
-               'intro':         1,
-               'inform':        2,
-               'init-price':    3, 
+intent_map = { np.NaN : 0,
+               'intro': 1,
+               'vague-price': 2,
+               'init-price': 3, 
                'counter-price': 4, 
-               'agree':         5, 
-               'inquiry':       6, 
-               'disagree':      7, 
-               'insist':        8,
-               'accept':        9,
-               'quit':          10,
-             }
+               'agree': 5, 
+               'inquiry': 6, 
+               'disagree': 7, 
+               'insist': 8,
+}
 #loading price prediction model
 def load_model():
     with open(MODEL_FILENAME , 'rb') as f:
@@ -36,8 +34,9 @@ def encoding_intents(buyer_intents):
 #predicting maximun discount percentage for counter-pricing
 def max_discount_predict(buyer_intents):
     classifier = load_model()
+    print(buyer_intents)
     encodedIntents = encoding_intents(buyer_intents)
     print(encodedIntents)
     discount = classifier.predict([encodedIntents])
-    var_discount = random.randrange(-4,4) if discount > 5 else random.randrange(1,5)
+    var_discount = random.randrange(-4,2) if discount > 5 else random.randrange(1,4)
     return discount + var_discount
