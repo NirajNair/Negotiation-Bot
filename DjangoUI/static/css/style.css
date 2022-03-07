@@ -1,0 +1,233 @@
+body{
+    background-color: #0B0C10;
+
+    height: 100%;
+}
+
+a{
+    color: white;
+}
+
+a:hover{
+    color: #C3073F;
+}
+
+#chat-container{
+    margin-top: 10px;
+    position: relative;
+}
+
+#chat{
+    margin-top: 1vh;
+}
+
+#collapsed-content{
+    background-color: #0B0C10;
+}
+
+.navbar-toggler{
+    border: 0px;
+    background-color: #0B0C10;
+    float: right;
+}
+
+.sub-container{
+    display: flex;
+    flex-direction: column;
+    border: 0.5px solid black;
+    border-radius: 10px;
+    background-color: #1F2833;
+    height:85vh;
+    object-fit: cover;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.title{
+    text-align: center;
+    background-color: #1F2833;
+    padding-bottom: 5px;
+    padding-top: 3px;
+    border-radius: 10px;
+    color: white;
+}
+
+h3 {
+    margin: auto;
+    text-align: center;
+}
+
+#userText{
+    font-size: large;
+    margin: 7px 20px 10px 20px;
+    color: whitesmoke;    
+}
+
+#botText{
+    font-size: large;
+    padding: 7px 20px 5px 20px;  
+    color: whitesmoke;
+}
+
+#itemLabel {
+    padding-left: 5px;
+}
+
+input[type=checkbox]:checked + label{
+    text-decoration-line: line-through;
+    color: black;
+    text-decoration-color: black;
+}
+
+.user-speech-container{
+    padding-top: 5px;
+    padding-bottom: 5px;    
+}
+
+.bot-speech-container{
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.box3 {
+    float: right;
+    margin-right: 15px;
+    margin-left: 10px;
+    width: fit-content;
+    max-width: 80%;
+    border-radius: 12px;
+    background: #C3073F;
+    color: #fff;
+    position: relative;
+}
+.box4 {
+    max-width: 80%;
+    width: fit-content;
+    margin-left: 15px;
+    border-radius:12px;
+    background: #4E4E50;
+    
+    color: #fff;
+    position: relative;
+}
+
+
+/* speech bubble 13 */
+
+.sb13:before {
+    content: "";
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    border-left: 10px solid #C3073F;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #C3073F;
+    border-bottom: 10px solid transparent;
+    right: -10px;
+    top: 0px;
+}
+
+
+/* speech bubble 14 */
+
+.sb14:before {
+
+    content: "";
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    border-left: 10px solid transparent;
+    border-right: 10px solid #4E4E50;
+    border-top: 10px solid #4E4E50;
+    border-bottom: 10px solid transparent;
+    left: -10px;
+    top: 0px;
+}
+  
+  
+/* 
+.speech-bubble-left {
+	position: relative;
+	background: #4E4E50;
+    border-radius: .4em;
+    width: fit-content;
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+.speech-bubble-left:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	border: 12px solid transparent;
+	border-right-color: #4E4E50;
+	border-left: 0;
+	border-bottom: 0;
+	margin-top: -6px;
+    margin-left: -12px;
+}
+
+.speech-bubble-right {
+	position: relative;
+	background: #C3073F;
+	border-radius: .4em;
+    width: fit-content;    
+    margin-top: 10px;
+    margin-right: 20px;
+
+}
+
+
+.speech-bubble-right:after {
+    content: '';
+	position: absolute;
+	right: 0;
+	top: 50%;
+    width: 0;
+	height: 0;
+	border: 12px solid transparent;
+	border-left-color: #C3073F;
+	border-right: 0;
+	border-bottom: 0;
+	margin-top: -6px;
+    margin-right: -12px;
+    
+} */
+ 
+
+#button-addon2{
+    background-color: #C3073F;
+    border: 0.5px #C3073F solid;
+    border-radius: 50px;
+    margin-left: 10px;
+    margin-right: 5px;
+}
+
+.fa{
+    margin: auto;
+}
+
+#inputContainer{
+    align-content: center;
+    margin-top: 5px;
+    border-radius: 30px; 
+    bottom: 0; 
+    position: relative; 
+
+}
+
+.inputForm{
+    
+    white-space: nowrap;
+    width: 92%;
+}
+
+#userInput, #button-addon2{
+    display: inline-block;
+
+}
+
