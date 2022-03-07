@@ -13,8 +13,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from xgboost import XGBClassifier
 
-MODEL_FILENAME = 'ic_model.pkl'
-VECT_FILENAME = 'vectorizer.pkl'
+MODEL_FILENAME = 'pickleModels/ic_model'
+VECT_FILENAME = 'pickleModels/vectorizer1.pkl'
 
 # Remove all punctuations
 def remove_all_punct(text):
@@ -86,7 +86,6 @@ def predict_intent(text):
     vectorized_text = vect.transform([preprocessed_text])
     # predicting the intent
     intent = ic_model.predict(vectorized_text)
-    print("current intent: ", intent_map[intent[0]])
     return intent_map[intent[0]]
 
 if __name__ == "__main__":

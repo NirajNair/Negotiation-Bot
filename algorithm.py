@@ -1,20 +1,18 @@
 import re
 import random
-
-from sympy import Abs
-from intentClassification import ic_model 
-from pricePrediction import pp_model
 import pandas as pd
 import numpy as np
-from pathlib import Path
-from datasets import load_dataset
+from intentClassification import ic_model 
+from pricePrediction import pp_model
+from sentimentAnalysis import sentimentModel, sentenceSimilarity
+# from datasets import load_dataset
 pd.set_option('display.max_colwidth', 1000)
 
 # test_ds = load_dataset('craigslist_bargains', split= 'validation')
 # test_ds = pd.DataFrame(test_ds)
 # test_ds.rename(columns={'utterance':'bargain_convo','dialogue_acts':'intent'}, inplace=True)
 # test_ds = test_ds.loc[6,:]
-
+bool_neg_context = False
 #algo3
 def priceExtraction(value):
     try:
@@ -54,7 +52,7 @@ def saveIntentIntoBuyerTimeline(data):
     buyer_timeline = np.load('buyer_timeline.npy')
     new_timeline = np.append(buyer_timeline, [data], axis=0)
     np.save('buyer_timeline.npy', new_timeline)
-    print('buyer_timeline:')
+    print("Buyer's timeline:")
     print(new_timeline)
 
 def saveIntentIntoBotTimeline(data):
@@ -62,8 +60,11 @@ def saveIntentIntoBotTimeline(data):
     bot_timeline = np.load('bot_timeline.npy')
     new_timeline = np.append(bot_timeline, [data], axis=0)
     np.save('bot_timeline.npy', new_timeline)
-    print('bot_timeline:')
+    print("Bot's timeline:")
     print(new_timeline)
+
+def additionalDiscount():
+    pass
 
 def discountedAmount(buyer_offer):
     discount = pp_model.max_discount_predict(getBuyerIntents())
@@ -71,23 +72,31 @@ def discountedAmount(buyer_offer):
     all_bot_Offers = getBotOffers()
     all_buyer_offers = getBuyerOffers()
     bot_offer = (100 - discount[0]) * 0.01 * upperLimit
-    print("price prediction:", bot_offer, 'discount%', discount)
+    print("Price prediction:", bot_offer, 'Discount%', discount)
     
     # Error Margin: If buyer's offer differ only within mentioned percentage margin, the Agree
-    if (abs(bot_offer - buyer_offer)/upperLimit)*100 <= 3:
-        print("case1")
-        bot_offer = buyer_offer
+    # if (abs(bot_offer - buyer_offer)/upperLimit)*100 <= 3:
+        # print("case1")
+        # bot_offer = buyer_offer
         
     # If bot's current offer is equal to or lower than buyer's offer, then Agree
     if bot_offer < buyer_offer:
         print("case2")
-        bot_offer = buyer_offer
+        bot_offer = buyer_offer 
 
     # If bot's current offer is lower than lowerLimit, then offer a Middle Price
     if bot_offer <= lowerLimit: 
         print("case3")
         last_bot_offer = all_bot_Offers[-1] if len(all_bot_Offers) > 0 else upperLimit
-        bot_offer = (upperLimit + bot_offer)//2.02
+        all_buyer_offers = getBuyerOffers()
+        if buyer_offer != 0:
+            bot_offer = (upperLimit + buyer_offer)//2.02
+        elif len(all_buyer_offers) != 0:
+            bot_offer = (upperLimit + all_buyer_offers[-1])//2.02
+        elif len(all_buyer_offers) != 0:
+            bot_offer = (upperLimit + bot_offer)//2.02
+        else:
+            bot_offer = (upperLimit + lowerLimit)//2.02
     # bot_offer = bot_offer if bot_offer > lowerLimit else (upperLimit + buyer_offer)//2.02
     # bot_offer = bot_offer if bot_offer > lowerLimit else (upperLimit + lowerLimit)//1.95
     
@@ -96,9 +105,16 @@ def discountedAmount(buyer_offer):
         print("case4")
         last_bot_offer = all_bot_Offers[-1]
         bot_offer = bot_offer if bot_offer < last_bot_offer else last_bot_offer
+
+    #If user has revealed some negative points about the product, then Additional Discount
+    global bool_neg_context
+    print(bool_neg_context)
+    if bool_neg_context:
+        print("log: Negative context set to true, offering additional discount")
+        bot_offer = bot_offer - (bot_offer * random.randrange(6,12) * 0.01)
     
     print(bot_offer, buyer_offer)
-    print("price after approximation:", bot_offer)
+    print("Price after approximation:", bot_offer)
     return int(bot_offer)
 
 def Intentagree(buyer_offer):
@@ -162,13 +178,6 @@ def Intentcounterprice(buyer_offer):
     all_buyer_Offers = getBuyerOffers()
     # if len(all_buyer_Offers) == 0: 
     #     return 
-
-    # If buyer insists on same offer more than 2 times, then Disagree
-    all_buyer_Offers = getBuyerOffers()
-    if all_buyer_Offers[-3:].count(buyer_offer) >= 3:
-        print("log: Insisting on same offer x 3, switching to Intent-disagree for response")
-        return Intentdisagree(buyer_offer)
-
     # If bot's offer is equal to buyer's offer, then Agree
     bot_offer = discountedAmount(buyer_offer)
     if (abs(bot_offer - buyer_offer)/upperLimit)*100 <= 3:
@@ -176,6 +185,13 @@ def Intentcounterprice(buyer_offer):
         print("log: Equal Offers. Switching to Intent-agree for response")
         return Intentagree(buyer_offer)
 
+    # If buyer insists on same offer more than 2 times, then Disagree
+    all_buyer_Offers = getBuyerOffers()
+    if all_buyer_Offers[-3:].count(buyer_offer) >= 3:
+        print("log: Insisting on same offer x 3, switching to Intent-disagree for response")
+        return Intentdisagree(buyer_offer)
+
+    
     saveIntentIntoBotTimeline(['counter-price',bot_offer])
     return 'counterprice', bot_offer
 
@@ -195,10 +211,24 @@ def Intentunknown(buyer_offer):
 def decisionEngine(text):
     #function call for intentClassification from file ic_model.py
     buyer_intent = ic_model.predict_intent(text)
+    print("current buyer's intent:", buyer_intent)
+
+    global bool_neg_context
+    
+    #It will predict if input is positive or negative 
+    buyer_sentiment = sentimentModel.predict_intent(text)
+    print("buyer's sentiment intent:", buyer_sentiment)
+    
+    if buyer_sentiment == 'negative': 
+        result = sentenceSimilarity.cosineSimilarity(text)
+        if result > 0.1:
+            bool_neg_context = True
+
+    print("negative context:", bool_neg_context)
 
     #fetching discret price or buyer's offer from input text 
     buyer_offer = priceExtraction(text)
-    print("current buyer offer:", buyer_offer)
+    print("current buyer's offer:", buyer_offer)
 
     all_buyer_Offers = getBuyerOffers()
     all_bot_Offers = getBotOffers()
