@@ -5,5 +5,6 @@ from chatbot import views
 urlpatterns = [
     path('', views.index, name='chatbot'),   
     path('reset/',  views.resetChat, name='resetChat'), 
-    path('newpage/',  views.showOutput,  name="takeBotOutput") 
+    path('newpage/',  views.showOutput,  name="takeBotOutput"),
+    path('selectProduct/',  views.selectProduct, name="selectProduct") 
 ]

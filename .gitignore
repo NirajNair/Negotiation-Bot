@@ -130,4 +130,10 @@ dmypy.json
 
 #trial file 
 trial_files/
-
+numpyFiles/useless
+algorithm1.py
+algorithm2.py
+algorithm3.py
+file_hierarchy.txt
+*.csv
+*.txt

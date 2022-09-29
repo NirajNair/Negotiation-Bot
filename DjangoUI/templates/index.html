@@ -34,11 +34,11 @@
         <form action="{% url 'selectProduct' %}" method="post">
             {% csrf_token %}
             <select name="product">
-              <option selected value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
+              <option selected value="1">Car</option>
+              <option value="2">Couch</option>
+              <option value="3">Projector</option>
+              <option value="4">iphone</option>
+              <option value="5">Cabinet</option>
             </select>
             <input type="submit" value="Select">
           </form>
@@ -58,8 +58,11 @@
                 <input type="text" id="userInput" autocomplete="off" class="form-control" placeholder="Enter Text Here..." aria-label="Recipient's username" aria-describedby="button-addon2" name="userInput">
             <button class="btn btn-outline-secondary" type="submit" id="button-addon2" style="color: white;">Send</button>
                 </form>
-            </div>
-            <button class="btn btn-outline-secondary" type="submit" id="resetButton" onclick="location.href='{% url 'resetChat' %}'" style="color: white;">Reset</button>
+        </div>
+        <form action="{% url 'resetChat' %}" class="inputForm">
+            {% csrf_token %}
+            <button class="btn btn-outline-secondary" type="submit" id="resetButton" style="color: white;">Reset</button>
+        </form>
     </div>
     <p style="color: aliceblue;">{{ data }}</p>
     
@@ -73,6 +76,6 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
     integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/superagent"></script>
-    <script type="text/javascript" src="js/script.js" charset="utf-8"></script>
+    <!-- <script type="text/javascript" src="js/script.js" charset="utf-8"></script> -->
 </body>
 </html>

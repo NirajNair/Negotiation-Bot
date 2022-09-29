@@ -2,7 +2,8 @@ import pickle
 import numpy as np
 import random 
 
-MODEL_FILENAME = 'pickleModels/pp_model_raw.pkl'
+
+MODEL_FILENAME = 'D:/College Projects/Final Project/Negotiation-Bot/pickleModels/pp_model_raw.pkl'
 
 #encoded integer label for intents
 intent_map = { np.NaN : 0,

@@ -43,8 +43,8 @@ def text_tokenize_with_stopwords(text):
     return text
 
 
-MODEL_FILENAME = 'pickleModels/sentiment_model.pkl'
-VECT_FILENAME = 'pickleModels/sentiment_vectorizer.pkl'
+MODEL_FILENAME = 'D:/College Projects/Final Project/Negotiation-Bot/pickleModels/sentiment_model.pkl'
+VECT_FILENAME = 'D:/College Projects/Final Project/Negotiation-Bot/pickleModels/sentiment_vectorizer.pkl'
 
 def load_model_and_vectorizer():
     # if os.path.exists(MODEL_FILENAME):

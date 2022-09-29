@@ -1,5 +1,6 @@
 import re
 import random
+import os
 import pandas as pd
 import numpy as np
 from intentClassification import ic_model 
@@ -8,12 +9,15 @@ from sentimentAnalysis import sentimentModel, sentenceSimilarity
 # from datasets import load_dataset
 pd.set_option('display.max_colwidth', 1000)
 
-# test_ds = load_dataset('craigslist_bargains', split= 'validation')
-# test_ds = pd.DataFrame(test_ds)
-# test_ds.rename(columns={'utterance':'bargain_convo','dialogue_acts':'intent'}, inplace=True)
-# test_ds = test_ds.loc[6,:]
+dirname = os.path.dirname(__file__)
+
+BUYER_TIMELINE = os.path.join(dirname, 'numpyFiles/buyer_timeline.npy')
+BOT_TIMELINE = os.path.join(dirname, 'numpyFiles/bot_timeline.npy')
+INTENT_TIMELINE = os.path.join(dirname, 'numpyFiles/intent_timeline.npy')
+PRICE_LIMIT = os.path.join(dirname, 'numpyFiles/price_limit.npy')
+
+
 bool_neg_context = False
-#algo3
 def priceExtraction(value):
     try:
         price = re.findall('\$\d+', value)
@@ -22,44 +26,44 @@ def priceExtraction(value):
         return 0
 
 def getPriceLimit():
-    price_limit = np.load('price_limit.npy')
+    price_limit = np.load(PRICE_LIMIT)
     return price_limit[0], price_limit[1]
 
 def getBuyerOffers():
-    buyer_timeline = np.load('buyer_timeline.npy')
+    buyer_timeline = np.load(BUYER_TIMELINE)
     buyer_Offers = [int(x[1]) for x in buyer_timeline[1:] if x[1] != '0']
     return buyer_Offers
 
 def getBuyerIntents():
-    buyer_timeline = np.load('buyer_timeline.npy')
+    buyer_timeline = np.load(BUYER_TIMELINE)
     buyer_intents = [x[0] for x in buyer_timeline]
     buyer_intents = buyer_intents[1:]
     return buyer_intents
 
 def getBotOffers():
-    bot_timeline = np.load('bot_timeline.npy')
+    bot_timeline = np.load(BOT_TIMELINE)
     bot_Offers = [int(x[1]) for x in bot_timeline[1:] if x[1] != '0']
     return bot_Offers
 
 def getBotIntents():
-    bot_timeline = np.load('bot_timeline.npy')
+    bot_timeline = np.load(BOT_TIMELINE)
     bot_intents = [x[0] for x in bot_timeline]
     bot_intents = bot_intents[1:]
     return bot_intents
 
 def saveIntentIntoBuyerTimeline(data):
     #saving current buyer's and bot's intent and Offers in file intent_timeline.npy
-    buyer_timeline = np.load('buyer_timeline.npy')
+    buyer_timeline = np.load(BUYER_TIMELINE)
     new_timeline = np.append(buyer_timeline, [data], axis=0)
-    np.save('buyer_timeline.npy', new_timeline)
+    np.save(BUYER_TIMELINE, new_timeline)
     print("Buyer's timeline:")
     print(new_timeline)
 
 def saveIntentIntoBotTimeline(data):
     #saving current buyer's and bot's intent and Offers in file intent_timeline.npy
-    bot_timeline = np.load('bot_timeline.npy')
+    bot_timeline = np.load(BOT_TIMELINE)
     new_timeline = np.append(bot_timeline, [data], axis=0)
-    np.save('bot_timeline.npy', new_timeline)
+    np.save(BOT_TIMELINE, new_timeline)
     print("Bot's timeline:")
     print(new_timeline)
 
@@ -74,10 +78,7 @@ def discountedAmount(buyer_offer):
     bot_offer = (100 - discount[0]) * 0.01 * upperLimit
     print("Price prediction:", bot_offer, 'Discount%', discount)
     
-    # Error Margin: If buyer's offer differ only within mentioned percentage margin, the Agree
-    # if (abs(bot_offer - buyer_offer)/upperLimit)*100 <= 3:
-        # print("case1")
-        # bot_offer = buyer_offer
+    
         
     # If bot's current offer is equal to or lower than buyer's offer, then Agree
     if bot_offer < buyer_offer:
@@ -97,8 +98,7 @@ def discountedAmount(buyer_offer):
             bot_offer = (upperLimit + bot_offer)//2.02
         else:
             bot_offer = (upperLimit + lowerLimit)//2.02
-    # bot_offer = bot_offer if bot_offer > lowerLimit else (upperLimit + buyer_offer)//2.02
-    # bot_offer = bot_offer if bot_offer > lowerLimit else (upperLimit + lowerLimit)//1.95
+    
     
     # If bot's current offer is greater than his last offer, then Insist
     if len(all_bot_Offers) > 0 and bot_offer > all_bot_Offers[-1]:
@@ -112,7 +112,9 @@ def discountedAmount(buyer_offer):
     if bool_neg_context:
         print("log: Negative context set to true, offering additional discount")
         bot_offer = bot_offer - (bot_offer * random.randrange(6,12) * 0.01)
-    
+    if bot_offer < buyer_offer:
+        bot_offer = buyer_offer
+        print("log: After additional discount bot_offer < buyer_offer, then agree at buyer_offer")
     print(bot_offer, buyer_offer)
     print("Price after approximation:", bot_offer)
     return int(bot_offer)
@@ -176,8 +178,7 @@ def Intentinitprice(buyer_offer):
 def Intentcounterprice(buyer_offer):
     upperLimit, lowerLimit = getPriceLimit()
     all_buyer_Offers = getBuyerOffers()
-    # if len(all_buyer_Offers) == 0: 
-    #     return 
+    
     # If bot's offer is equal to buyer's offer, then Agree
     bot_offer = discountedAmount(buyer_offer)
     if (abs(bot_offer - buyer_offer)/upperLimit)*100 <= 3:
@@ -235,8 +236,7 @@ def decisionEngine(text):
     all_buyer_intents = getBuyerIntents()
     upperLimit, lowerLimit = getPriceLimit()
 
-    # if buyer_offer >= last_bot_offer:
-    #     return 
+  
 
     if all_buyer_intents[-2:].count('insist') == 2 and buyer_intent != 'agree':
         print("log: User keeps on insisting, switching to Intent-disagree for response")
@@ -255,13 +255,7 @@ def decisionEngine(text):
         saveIntentIntoBuyerTimeline(['vague-price',buyer_offer])
         return Intentvague(buyer_offer)
 
-    # If user starts offering from first text, the bot firstly will reply with Intro instead of counterpricing
-    # if len(all_buyer_intents) == 0 and (buyer_intent == 'counter-price' or buyer_intent == 'init-price'):
-    #     return Intentintro(buyer_offer)
-
-    # if len(all_bot_Offers) != 0 and int(all_bot_Offers[-1]) != 0 and all_bot_Offers[-2:].count(all_bot_Offers[-1]) == 2:
-    #     print("log: Bot offered final price twice, switching to Intent-disagree for response")
-    #     return Intentdisagree(buyer_offer)
+ 
 
     if len(all_bot_Offers) != 0 and all_bot_Offers[-1] != 0 and buyer_offer <= all_bot_Offers[-1] and all_bot_Offers[-2:].count(all_bot_Offers[-1]) == 2:
         print("log: Bot offered final price twice, switching to Intent-disagree for response")

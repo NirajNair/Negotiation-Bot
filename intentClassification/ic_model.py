@@ -13,8 +13,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from xgboost import XGBClassifier
 
-MODEL_FILENAME = 'pickleModels/ic_model'
-VECT_FILENAME = 'pickleModels/vectorizer1.pkl'
+MODEL_FILENAME = 'D:/College Projects/Final Project/Negotiation-Bot/pickleModels/m.pkl'
+VECT_FILENAME = 'D:/College Projects/Final Project/Negotiation-Bot/pickleModels/v.pkl'
 
 # Remove all punctuations
 def remove_all_punct(text):
@@ -51,14 +51,11 @@ def vectorize_text(text):
 
 intent_map = { 4051:'init-price',
                7680:'unknown', 
-            #   354:'insist', 
                7118:'counter-price', 
                1579:'agree', 
                3747:'intro', 
                4570:'inquiry', 
                1836:'disagree', 
-            #   366:'vague-price', 
-            #   2141:'inform'
             }
 
 # intent_map = { 0:'init-price',

@@ -3,23 +3,31 @@ import numpy as np
 import pandas as pd
 import random
 from sentimentAnalysis import sentenceSimilarity
+import os
+
+dirname = os.path.dirname(__file__)
+
+BUYER_TIMELINE = os.path.join(dirname, 'numpyFiles/buyer_timeline.npy')
+BOT_TIMELINE = os.path.join(dirname, 'numpyFiles/bot_timeline.npy')
+INTENT_TIMELINE = os.path.join(dirname, 'numpyFiles/intent_timeline.npy')
+PRICE_LIMIT = os.path.join(dirname, 'numpyFiles/price_limit.npy')
 
 def set_product_details(upperLimit, lowerLimit, description):
     sentenceSimilarity.vectorize_description(description)
-    botReply["inquiry"].append(description)
+    botReply["inquiry"] = [description + "Only for ${}, Cash only you pick up.".format(upperLimit)]
     price_limit = np.array([upperLimit, lowerLimit])
-    np.save('price_limit.npy', price_limit)
+    np.save(PRICE_LIMIT, price_limit)
 
 def print_price_limit():
-    price_limit = np.load('price_limit.npy')
+    price_limit = np.load(PRICE_LIMIT)
     print("upperLimit:", price_limit[0],"lowerLimit:", price_limit[1])
 
 def set_timeline():
     buyer_timeline = np.array([['buyer_intent','buyer_bid']])
-    np.save('buyer_timeline.npy', buyer_timeline)
+    np.save(BUYER_TIMELINE, buyer_timeline)
 
     bot_timeline = np.array([['bot_intent','bot_bid']])
-    np.save('bot_timeline.npy', bot_timeline)
+    np.save(BOT_TIMELINE, bot_timeline)
 
 botReply = {
     "title": "",
@@ -108,28 +116,9 @@ botReply = {
 
 def negoBotResponse(text):
     intent, bid = algorithm.decisionEngine(text)
-    # if intent == 'counter-price':
-    #     return botReply['counterprice'][random.randrange(0,len(botReply['counterprice']))].format(bid)
-    # elif intent == 'agree':
-    #     return botReply['agree'][random.randrange(0,len(botReply['agree']))].format(bid)
-    # elif intent == 'disagree':
-    #     return botReply['disagree'][random.randrange(0,len(botReply['disagree']))].format(bid)
-    # elif intent == 'insist':
-    #     return botReply['insist'][random.randrange(0,len(botReply['insist']))].format(bid)
    
     return botReply[intent][random.randrange(0,len(botReply[intent]))].format(bid)
-# def negoBotResponse(text):
-#     intent, bid = algorithm.decisionEngine(text)
-#     if intent == 'counter-price' or intent == 'init-price':
-#         return botReply['counterprice'][random.randrange(0,len(botReply['counterprice']))].format(bid)
-#     elif intent == 'agree':
-#         return botReply['agree'][random.randrange(0,len(botReply['agree']))].format(bid)
-#     elif intent == 'disagree':
-#         return botReply['disagree'][random.randrange(0,len(botReply['disagree']))].format(bid)
-#     elif intent == 'insist':
-#         return botReply['insist'][random.randrange(0,len(botReply['insist']))].format(bid)
-#     else:
-#         return botReply[intent][random.randrange(0,len(botReply[intent]))]
+
         
 convo = []
 def printConvo():
@@ -140,10 +129,6 @@ def printConvo():
 
 def negoBot(userInput):
     response = negoBotResponse(userInput)
-    convo.append(["You", userInput])
-    convo.append(["Bot", response])
-    printConvo()
-    # return response
+    return response
 
-#Can you tell me the details? Nahh that's too much how about $450? No. I'm out
-#no deal, so no deal then, no deal from my side, I'm not sure about this, No this is too much, can't do it   
+ 
