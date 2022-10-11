@@ -2,6 +2,8 @@ import re
 import os
 import string
 import joblib as jb
+import nltk
+nltk.download('stopwords')
 from nltk import word_tokenize
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
