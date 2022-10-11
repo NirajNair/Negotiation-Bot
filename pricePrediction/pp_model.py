@@ -4,7 +4,7 @@ import random
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL_FILENAME = os.path.join(BASE_DIR, "Negotiation-Bot/pickleModels/pp_model_raw.pkl")
+MODEL_FILENAME = os.path.join(BASE_DIR, "pickleModels/pp_model_raw.pkl")
 
 #encoded integer label for intents
 intent_map = { np.NaN : 0,

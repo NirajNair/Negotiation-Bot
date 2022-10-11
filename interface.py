@@ -6,10 +6,10 @@ from sentimentAnalysis import sentenceSimilarity
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BUYER_TIMELINE = os.path.join(BASE_DIR, "Negotiation-Bot/numpyFiles/buyer_timeline.npy")
-BOT_TIMELINE = os.path.join(BASE_DIR, "Negotiation-Bot/numpyFiles/bot_timeline.npy")
-INTENT_TIMELINE = os.path.join(BASE_DIR, "Negotiation-Bot/numpyFiles/intent_timeline.npy")
-PRICE_LIMIT = os.path.join(BASE_DIR, "Negotiation-Bot/numpyFiles/price_limit.npy")
+BUYER_TIMELINE = os.path.join(BASE_DIR, "numpyFiles/buyer_timeline.npy")
+BOT_TIMELINE = os.path.join(BASE_DIR, "numpyFiles/bot_timeline.npy")
+INTENT_TIMELINE = os.path.join(BASE_DIR, "numpyFiles/intent_timeline.npy")
+PRICE_LIMIT = os.path.join(BASE_DIR, "numpyFiles/price_limit.npy")
 
 
 def set_product_details(upperLimit, lowerLimit, description):

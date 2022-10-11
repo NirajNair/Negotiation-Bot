@@ -15,8 +15,8 @@ from xgboost import XGBClassifier
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-MODEL_FILENAME = os.path.join(BASE_DIR, "Negotiation-Bot/pickleModels/m.pkl")
-VECT_FILENAME = os.path.join(BASE_DIR, "Negotiation-Bot/pickleModels/v.pkl")
+MODEL_FILENAME = os.path.join(BASE_DIR, "pickleModels/m.pkl")
+VECT_FILENAME = os.path.join(BASE_DIR, "pickleModels/v.pkl")
 
 # Remove all punctuations
 def remove_all_punct(text):

@@ -11,8 +11,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 stop_words = stopwords.words('english')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL_FILENAME = os.path.join(BASE_DIR,"Negotiation-Bot/pickleModels/cosine_model.pkl")
-VECT_FILENAME = os.path.join(BASE_DIR,"Negotiation-Bot/pickleModels/cosine_vectorizer.pkl")
+MODEL_FILENAME = os.path.join(BASE_DIR,"pickleModels/cosine_model.pkl")
+VECT_FILENAME = os.path.join(BASE_DIR,"pickleModels/cosine_vectorizer.pkl")
 
 def vectorize_description(data):
     data = text_preprocess(data)
