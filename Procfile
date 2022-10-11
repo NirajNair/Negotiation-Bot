@@ -1,1 +1,1 @@
-web: gunicorn NegotiationBot.wsgi   
+web: gunicorn DjangoUI.NegotiationBot.wsgi   
