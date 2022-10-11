@@ -4,6 +4,8 @@ import string
 import pickle
 import pandas as pd
 import numpy as np
+import nltk
+nltk.download('punkt')
 from nltk import word_tokenize
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
