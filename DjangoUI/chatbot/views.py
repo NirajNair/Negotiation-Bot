@@ -9,9 +9,10 @@ from numpy import product
 from sympy import re
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+print(BASE_DIR)
 PROJECT_PATH = os.path.join(BASE_DIR)
-sys.path.insert(0, PROJECT_PATH)
+sys.path.insert(0, BASE_DIR)
 from interface import negoBot,  set_timeline, set_product_details, print_price_limit
 
 messageList = []
