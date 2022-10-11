@@ -7,7 +7,11 @@ import sys
 
 from numpy import product
 from sympy import re
-sys.path.insert(0, '/home/dexter02/Negotiation-Bot/')
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_PATH = os.path.join(BASE_DIR, "Negotiation-Bot/")
+sys.path.insert(0, PROJECT_PATH)
 from interface import negoBot,  set_timeline, set_product_details, print_price_limit
 
 messageList = []

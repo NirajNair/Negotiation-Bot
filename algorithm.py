@@ -11,10 +11,11 @@ pd.set_option('display.max_colwidth', 1000)
 
 dirname = os.path.dirname(__file__)
 
-BUYER_TIMELINE = '/home/dexter02/Negotiation-Bot/numpyFiles/buyer_timeline.npy'
-BOT_TIMELINE = '/home/dexter02/Negotiation-Bot/numpyFiles/bot_timeline.npy'
-INTENT_TIMELINE = '/home/dexter02/Negotiation-Bot/numpyFiles/intent_timeline.npy'
-PRICE_LIMIT = '/home/dexter02/Negotiation-Bot/numpyFiles/price_limit.npy'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BUYER_TIMELINE = os.path.join(BASE_DIR, "Negotiation-Bot/numpyFiles/buyer_timeline.npy")
+BOT_TIMELINE = os.path.join(BASE_DIR, "Negotiation-Bot/numpyFiles/bot_timeline.npy")
+INTENT_TIMELINE = os.path.join(BASE_DIR, "Negotiation-Bot/numpyFiles/intent_timeline.npy")
+PRICE_LIMIT = os.path.join(BASE_DIR, "Negotiation-Bot/numpyFiles/price_limit.npy")
 
 
 bool_neg_context = False

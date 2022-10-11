@@ -1,9 +1,10 @@
 import pickle
 import numpy as np
 import random
+import os
 
-
-MODEL_FILENAME = '/home/dexter02/Negotiation-Bot/pickleModels/pp_model_raw.pkl'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_FILENAME = os.path.join(BASE_DIR, "Negotiation-Bot/pickleModels/pp_model_raw.pkl")
 
 #encoded integer label for intents
 intent_map = { np.NaN : 0,

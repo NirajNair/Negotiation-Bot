@@ -10,8 +10,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 # from sentence_transformers import SentenceTransformer
 
 stop_words = stopwords.words('english')
-MODEL_FILENAME = '/home/dexter02/Negotiation-Bot/pickleModels/cosine_model.pkl'
-VECT_FILENAME = '/home/dexter02/Negotiation-Bot/pickleModels/cosine_vectorizer.pkl'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_FILENAME = os.path.join(BASE_DIR,"Negotiation-Bot/pickleModels/cosine_model.pkl")
+VECT_FILENAME = os.path.join(BASE_DIR,"Negotiation-Bot/pickleModels/cosine_vectorizer.pkl")
 
 def vectorize_description(data):
     data = text_preprocess(data)

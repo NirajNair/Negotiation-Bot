@@ -1,4 +1,5 @@
 import re
+import os
 import string
 import joblib as jb
 from nltk import word_tokenize
@@ -42,9 +43,9 @@ def text_tokenize_with_stopwords(text):
     text = [word for word in text]
     return text
 
-
-MODEL_FILENAME = '/home/dexter02/Negotiation-Bot/pickleModels/sentiment_model.pkl'
-VECT_FILENAME = '/home/dexter02/Negotiation-Bot/pickleModels/sentiment_vectorizer.pkl'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_FILENAME = os.path.join(BASE_DIR, "/home/dexter02/Negotiation-Bot/pickleModels/sentiment_model.pkl")
+VECT_FILENAME = os.path.join(BASE_DIR, "Negotiation-Bot/pickleModels/sentiment_vectorizer.pkl")
 
 def load_model_and_vectorizer():
     # if os.path.exists(MODEL_FILENAME):

@@ -13,8 +13,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from xgboost import XGBClassifier
 
-MODEL_FILENAME = '/home/dexter02/Negotiation-Bot/pickleModels/m.pkl'
-VECT_FILENAME = '/home/dexter02/Negotiation-Bot/pickleModels/v.pkl'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MODEL_FILENAME = os.path.join(BASE_DIR, "Negotiation-Bot/pickleModels/m.pkl")
+VECT_FILENAME = os.path.join(BASE_DIR, "Negotiation-Bot/pickleModels/v.pkl")
 
 # Remove all punctuations
 def remove_all_punct(text):
