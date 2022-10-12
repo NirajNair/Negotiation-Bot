@@ -11,7 +11,7 @@ pd.set_option('display.max_colwidth', 1000)
 
 dirname = os.path.dirname(__file__)
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BUYER_TIMELINE = os.path.join(BASE_DIR, "numpyFiles/buyer_timeline.npy")
 BOT_TIMELINE = os.path.join(BASE_DIR, "numpyFiles/bot_timeline.npy")
 INTENT_TIMELINE = os.path.join(BASE_DIR, "numpyFiles/intent_timeline.npy")
