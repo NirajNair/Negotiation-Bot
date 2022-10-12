@@ -53,9 +53,9 @@ def index(request):
 # Resets the chat timeline
 def resetChat(request):
     set_timeline()
-    lp =productDict[1]["lower"]
-    up =productDict[1]["upper"]
-    desc =productDict[1]["description"]
+    lp =productDict["1"]["lower"]
+    up =productDict["1"]["upper"]
+    desc =productDict["1"]["description"]
     set_product_details(up, lp, desc)
     print_price_limit()
     messageList.clear()
