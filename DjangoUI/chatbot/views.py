@@ -54,7 +54,7 @@ def index(request):
 # Resets the chat timeline
 def resetChat(request):
     set_timeline()
-    set_product_details(500, 430, 'No product select. Please select a product!')
+    set_product_details(500, 430, 'No product selected. Please select a product!')
     print_price_limit()
     messageList.clear()
     return render(request, 'index.html')
