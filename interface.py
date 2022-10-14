@@ -14,7 +14,10 @@ PRICE_LIMIT = os.path.join(BASE_DIR, "numpyFiles/price_limit.npy")
 
 def set_product_details(upperLimit, lowerLimit, description):
     sentenceSimilarity.vectorize_description(description)
-    botReply["inquiry"] = [description + "Only for ${}, Cash only you pick up.".format(upperLimit)]
+    if(description != 'No product select. Please select a product!'):
+        botReply["inquiry"] = [description + "Only for ${}, Cash only you pick up.".format(upperLimit)]
+    else:
+        botReply["inquiry"] = [description]
     price_limit = np.array([upperLimit, lowerLimit])
     np.save(PRICE_LIMIT, price_limit)
 
@@ -117,7 +120,7 @@ botReply = {
 def negoBotResponse(text):
     intent, bid = algorithm.decisionEngine(text)
 
-    return botReply[intent][random.randrange(0,len(botReply[intent]))].format(bid)
+    return botReply[intent][random.randint(0,len(botReply[intent])-1)].format(bid)
 
 
 convo = []

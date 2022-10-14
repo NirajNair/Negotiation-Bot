@@ -48,15 +48,13 @@ productDict = {
 }
 
 def index(request):
+    resetChat(request)
     return render(request, 'index.html')
 
 # Resets the chat timeline
 def resetChat(request):
     set_timeline()
-    up = 1000000
-    lp = 1000000
-    desc='No product selected. Please select a product'
-    set_product_details(up, lp, desc)
+    set_product_details(500, 430, 'No product select. Please select a product!')
     print_price_limit()
     messageList.clear()
     return render(request, 'index.html')
